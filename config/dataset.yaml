@@ -1,6 +1,6 @@
 deep_lesion:
   raw_dir: data/deep_lesion/raw
-  dataset_dir: data/deep_lesion
+  dataset_dir: data/deep_lesion/processed
   data_list: data/deep_lesion/image_list.txt
   mar_dir: data/deep_lesion/metal_masks
   scale: 0.5
@@ -19,7 +19,7 @@ deep_lesion:
     window: '[-175, 275] / 1000 * 0.192 + 0.192'
 spineweb:
   raw_dir: data/spineweb/raw # path to the original (unzipped) spineweb data
-  dataset_dir: data/spineweb # path to the prepared spineweb data
+  dataset_dir: data/spineweb/processed # path to the prepared spineweb data
   max_hu: [2000, 2500] # thresholds of the non-metal/metal HU values
   connected_area: 400 # the size of connected metal area
   image_size: 256 # output image size

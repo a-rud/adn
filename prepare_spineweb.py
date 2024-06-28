@@ -18,8 +18,7 @@ def make_thumbnails(images):
     images = torch.tensor(np.array(images).astype(float))[:, np.newaxis, ...]
     images = (images - images.min()) / (images.max() - images.min())
     num_rows = int(len(images) ** 0.5)
-    image = make_grid(
-        images, nrow=images.shape[0] // num_rows, normalize=False)
+    image = make_grid(images, nrow=images.shape[0] // num_rows, normalize=False)
     image = image.numpy().transpose(1, 2, 0)
     image = (image * 255).astype(np.uint8)
     return image
@@ -30,8 +29,7 @@ if __name__ == "__main__":
     with open(config_file) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)['spineweb']
 
-    patient_dirs = read_dir(
-        config['raw_dir'], predicate=lambda x: "patient" in x, recursive=True)
+    patient_dirs = read_dir(config['raw_dir'], predicate=lambda x: "patient" in x, recursive=True)
 
     image_size = config['image_size']
     if type(image_size) is not list: image_size = [image_size] * 2
@@ -40,8 +38,8 @@ if __name__ == "__main__":
 
     for patient_dir in tqdm(patient_dirs):
         patient_name = path.basename(patient_dir)
-        volume_files = read_dir(patient_dir,
-            predicate=lambda x: x.endswith("mhd") or x.endswith("nii.gz"), recursive=True)
+        volume_files = read_dir(patient_dir, predicate=lambda x: x.endswith("mhd") or x.endswith("nii.gz"),
+                                recursive=True)
         for volume_file in volume_files:
             volume_obj = sitk.ReadImage(volume_file)
 
@@ -50,8 +48,7 @@ if __name__ == "__main__":
 
             thumbnails = defaultdict(list)
             index = 0
-            for image in tqdm(volume,
-                desc="Preparing {}_{}".format(patient_name, volume_name)):
+            for image in tqdm(volume, desc="Preparing {}_{}".format(patient_name, volume_name)):
                 image_type = "no_artifact"
 
                 # Check if the image has metal artifacts
@@ -61,12 +58,14 @@ if __name__ == "__main__":
                     components = get_connected_components(points)
                     max_area = max(len(c) for c in components)
 
-                    if max_area > config["connected_area"]: image_type = "artifact"
-                    else: continue
-                elif image.max() > config["max_hu"][0]: continue
+                    if max_area > config["connected_area"]:
+                        image_type = "artifact"
+                    else:
+                        continue
+                elif image.max() > config["max_hu"][0]:
+                    continue
 
-                output_dir = path.join(config["dataset_dir"], image_type,
-                    "{}_{}".format(patient_name, volume_name))
+                output_dir = path.join(config["dataset_dir"], image_type, "{}_{}".format(patient_name, volume_name))
                 if not path.isdir(output_dir): os.makedirs(output_dir)
 
                 image = Image.fromarray(image).resize(image_size)
@@ -74,13 +73,12 @@ if __name__ == "__main__":
 
                 thumbnail = (image - image.min()) / (image.max() - image.min())
                 thumbnail = (thumbnail * 255).astype(np.uint8)
-                thumbnails[image_type].append(
-                    np.array(Image.fromarray(image).resize(thumbnail_size)))
+                thumbnails[image_type].append(np.array(Image.fromarray(image).resize(thumbnail_size)))
 
                 image_name = "{}_{}_{:03d}".format(patient_name, volume_name, index)
                 image_file = path.join(output_dir, image_name + ".npy")
                 thumbnail_file = path.join(output_dir, image_name + ".png")
-                
+
                 np.save(image_file, image)
                 Image.fromarray(thumbnail).save(thumbnail_file)
                 index += 1
@@ -92,7 +90,8 @@ if __name__ == "__main__":
                 if len(ts) > 0:
                     thumbnails_file = path.join(config["dataset_dir"], k, "{}_{}.png".format(patient_name, volume_name))
                     Image.fromarray(make_thumbnails(ts)).save(thumbnails_file)
-                else: os.removedirs(output_dir)
+                else:
+                    os.removedirs(output_dir)
 
     # Create train and test split
     artifact_dir = path.join(config["dataset_dir"], "artifact")

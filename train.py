@@ -7,8 +7,10 @@ from adn.utils import \
 from adn.datasets import get_dataset
 from adn.models import ADNTrain
 from torch.utils.data import DataLoader
-from skimage.measure import compare_ssim as ssim
-from skimage.measure import compare_psnr as psnr
+#from skimage.measure import compare_ssim as ssim    # depreciated
+#from skimage.measure import compare_psnr as psnr    # depreciated
+from skimage.metrics import structural_similarity as ssim
+from skimage.metrics import peak_signal_noise_ratio as psnr
 
 
 if __name__ == "__main__":
